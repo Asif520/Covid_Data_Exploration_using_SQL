@@ -98,7 +98,8 @@ order by Total_deaths desc
 
 --Global Numbers
 
-select date , sum(cast(new_cases as int)) as Total_Cases , sum(cast(new_deaths as int)) as Total_Deaths, round(sum(cast(new_deaths as float))/sum(cast(new_cases as float)),2) as DeathPercentage
+select date , sum(cast(new_cases as int)) as Total_Cases , sum(cast(new_deaths as int)) as Total_Deaths, 
+round(sum(cast(new_deaths as float))/sum(cast(new_cases as float)),2) as DeathPercentage
 from CovidDeaths
 where continent is not null
 group by date
@@ -114,7 +115,8 @@ and dea.date = vac.date
 
 --Total Population vs Vaccinations
 
-select dea.continent,dea.location,dea.Date, dea.population,  vac.new_vaccinations , sum(convert(int, vac.new_vaccinations)) over (partition by dea.location order by dea.location,dea.date) as Rolling_People_Vaccinated
+select dea.continent,dea.location,dea.Date, dea.population,  vac.new_vaccinations , 
+sum(convert(int, vac.new_vaccinations)) over (partition by dea.location order by dea.location,dea.date) as Rolling_People_Vaccinated
 from CovidDeaths dea
 join CovidVaccinations vac
 	on dea.location = vac.location
@@ -128,7 +130,8 @@ order by 1,2
 with PopvsVac (continent, location,Date,population,new_vaccinations, Rolling_People_Vaccinated)
 as
 (
-select dea.continent,dea.location,dea.Date, dea.population,  vac.new_vaccinations , sum(convert(int, vac.new_vaccinations)) over (partition by dea.location order by dea.location,dea.date) as Rolling_People_Vaccinated
+select dea.continent,dea.location,dea.Date, dea.population,  vac.new_vaccinations , 
+sum(convert(int, vac.new_vaccinations)) over (partition by dea.location order by dea.location,dea.date) as Rolling_People_Vaccinated
 from CovidDeaths dea
 join CovidVaccinations vac
 	on dea.location = vac.location
@@ -152,11 +155,13 @@ Rolling_People_Vaccinated numeric
 )
 
 insert into #Population_Vaccinated
-select dea.continent,dea.location,dea.Date, dea.population,  vac.new_vaccinations , sum(convert(int, vac.new_vaccinations)) over (partition by dea.location order by dea.location,dea.date) as Rolling_People_Vaccinated
+select dea.continent,dea.location,dea.Date, dea.population,  vac.new_vaccinations , 
+sum(convert(int, vac.new_vaccinations)) over (partition by dea.location order by dea.location,dea.date) as Rolling_People_Vaccinated
 from CovidDeaths dea
 join CovidVaccinations vac
 	on dea.location = vac.location
 	and dea.date = vac.date
+	
 --where dea.continent is not null
 
 select *, (Rolling_People_Vaccinated/population)*100 as Vaccination_Rate 
@@ -166,7 +171,8 @@ from #Population_Vaccinated
 --Create a view to store data for visualization
 
 Create view Percent_Population_Vaccinated as
-select dea.continent,dea.location,dea.Date, dea.population,  vac.new_vaccinations , sum(convert(int, vac.new_vaccinations)) over (partition by dea.location order by dea.location,dea.date) as Rolling_People_Vaccinated
+select dea.continent,dea.location,dea.Date, dea.population,  vac.new_vaccinations , 
+sum(convert(int, vac.new_vaccinations)) over (partition by dea.location order by dea.location,dea.date) as Rolling_People_Vaccinated
 from CovidDeaths dea
 join CovidVaccinations vac
 	on dea.location = vac.location
